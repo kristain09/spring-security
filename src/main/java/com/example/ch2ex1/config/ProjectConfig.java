@@ -1,7 +1,11 @@
 package com.example.ch2ex1.config;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -13,28 +17,29 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
 // start after default, makes no auto generated password anymore.
 @Configuration // marks the class as a configuration class
-public class ProjectConfig {
+public class ProjectConfig extends WebSecurityConfigurerAdapter {
 
-    @Bean // instructs Spring to add the returned value as a bean in the Spring context
-    // but, it is still no override
-    public UserDetailsService userDetailsService() {
+    @Autowired
+    private CustomAuthenticationProvider authenticationProvider;
+
+    @Override
+    protected void configure (AuthenticationManagerBuilder auth) throws Exception {
         InMemoryUserDetailsManager userDetailsService = new InMemoryUserDetailsManager();
 
-        //build a user with given username, password and authorities list
-        UserDetails user = User
-                .withUsername("kris")
-                .password("12345")
-                .authorities("read")
-                .build();
+        UserDetails user = User.withUsername("kris").password("123455").authorities("read").build();
 
-        //Adds the user to be managed by UserDetailsService
+        //UserDetails user = User.withUsername("kris").password("123455").authorities("read").and().passwordEncoder(NoOpPasswordEncoder.getInstance());
+
         userDetailsService.createUser(user);
-        return userDetailsService;
+
+        auth.userDetailsService(userDetailsService)
+                .passwordEncoder(NoOpPasswordEncoder.getInstance());
     }
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        // good focus when it is just for example. it is not hashed anything at all.
-        return NoOpPasswordEncoder.getInstance();// depcrecated
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        http.httpBasic();
+        http.authorizeRequests()
+                .anyRequest().authenticated(); //not permitted
     }
 }

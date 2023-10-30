@@ -1,0 +1,13 @@
+don't use mixed configuration style!
+
+if we use bean than use bean, if we override methods, so use methods!
+
+Example:
+passwordEncoder using beans and configurer use override implementation. so it will trigger a confusion.
+
+
+Don't use chained too much, it is better separate and write responsibilities as decoupled possible in an applciation.
+It is better use decoupled rather than .and()
+
+Because of spring security is flexible, the use of this framework needs responsibility.
+It is possible to change the design it self.
